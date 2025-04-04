@@ -6,7 +6,11 @@ import {
 
 const router = express.Router();
 
+// Define routes for product management:
+
+// Route to create a new product
 router.post("/", createProduct);
+// Route to create a new product
 router.get("/", getAllProducts);
 
 export default router;

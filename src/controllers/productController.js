@@ -1,5 +1,6 @@
 import productService from "../services/productService.js";
 
+// This function creates a new product in the database and sends the created product as a JSON response.
 async function createProduct(req, res) {
   try {
     const product = await productService.createProduct(req.body);
@@ -9,9 +10,14 @@ async function createProduct(req, res) {
   }
 }
 
+// This function retrieves all products from the database and sends them as a JSON response.
 async function getAllProducts(req, res) {
-  const products = await productService.getAllProducts();
-  res.json(products);
+  try {
+    const products = await productService.getAllProducts();
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
 export { createProduct, getAllProducts };
