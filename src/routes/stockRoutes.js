@@ -4,11 +4,13 @@ import {
   sellProduct,
   removeStock,
 } from "../controllers/stockController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+import { limiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
-router.post("/in", stockIn);
-router.post("/sell", sellProduct);
-router.post("/remove", removeStock);
+router.post("/in", authMiddleware, limiter, stockIn);
+router.post("/sell", authMiddleware, limiter, sellProduct);
+router.post("/remove", authMiddleware, limiter, removeStock);
 
 export default router;

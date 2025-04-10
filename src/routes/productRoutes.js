@@ -3,10 +3,12 @@ import {
   createProduct,
   getAllProducts,
 } from "../controllers/productController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+import { limiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
-router.post("/", createProduct);
-router.get("/", getAllProducts);
+router.post("/", authMiddleware, limiter, createProduct);
+router.get("/", authMiddleware, limiter, getAllProducts);
 
 export default router;

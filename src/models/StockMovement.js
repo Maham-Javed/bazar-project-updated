@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
-import Product from "./Product.js";
+import { Product } from "./Product.js";
 
 const StockMovement = sequelize.define(
   "StockMovement",
@@ -12,6 +12,9 @@ const StockMovement = sequelize.define(
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        min: 1, // Quantity must be at least 1
+      },
     },
     productId: {
       type: DataTypes.INTEGER,
