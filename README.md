@@ -88,14 +88,13 @@ This is Stage 1 of a scalable Inventory Tracking System designed for kiryana sto
 # File Structure:
 
 ```
-backend/
-│── src/
-│ ├── config/ # DB setup (SQLite)
-│ ├── models/ # Sequelize models
-│ ├── services/ # Business logic
-│ ├── controllers/ # API handlers
-│ ├── routes/ # API routes
-│ └── server.js # Entry point
+── src/
+├── config/ # DB setup (SQLite)
+├── models/ # Sequelize models
+├── services/ # Business logic
+├── controllers/ # API handlers
+├── routes/ # API routes
+└── server.js # Entry point
 ```
 
 # Getting Started:
@@ -103,7 +102,7 @@ backend/
 ```
 > <! Navigate to the project >
 
-cd backend
+cd KIRYANA_BAZAR_PROJECT
 
 > <! Install dependencies>
 
