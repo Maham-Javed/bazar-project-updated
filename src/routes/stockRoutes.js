@@ -1,16 +1,10 @@
 import express from "express";
-import {
-  stockIn,
-  sellProduct,
-  removeStock,
-} from "../controllers/stockController.js";
+import { handleMovement, getReport } from "../controllers/stockController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { limiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
-router.post("/in", authMiddleware, limiter, stockIn);
-router.post("/sell", authMiddleware, limiter, sellProduct);
-router.post("/remove", authMiddleware, limiter, removeStock);
+router.post("/", authMiddleware, handleMovement); // for IN/SALE/REMOVE
+router.get("/report", authMiddleware, getReport); // filtered report
 
 export default router;

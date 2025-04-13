@@ -1,94 +1,51 @@
+import { Op } from "sequelize";
 import StockMovement from "../models/StockMovement.js";
-import { Product } from "../models/Product.js";
-import sequelize from "../config/database.js"; // Assuming sequelize is configured
+import Product from "../models/Product.js";
+import Store from "../models/Store.js";
+import { readDB } from "../config/database.js";
 
-// Stock in function
-async function stockIn(productId, quantity) {
-  if (quantity <= 0) throw new Error("Quantity must be a positive number");
-
-  const transaction = await sequelize.transaction();
-  try {
-    const product = await Product.findByPk(productId, { transaction });
-    if (!product) throw new Error("Product not found");
-
-    product.quantity += quantity;
-    await product.save({ transaction });
-
-    const stockMovement = await StockMovement.create(
-      {
-        type: "IN",
-        quantity,
-        productId,
-      },
-      { transaction }
-    );
-
-    await transaction.commit();
-    return stockMovement;
-  } catch (error) {
-    await transaction.rollback();
-    throw new Error("Error processing stock in: " + error.message);
+export const getStockReport = async (storeId, startDate, endDate) => {
+  const where = {};
+  if (storeId) where.storeId = storeId;
+  if (startDate && endDate) {
+    where.date = { [Op.between]: [new Date(startDate), new Date(endDate)] };
   }
-}
 
-// Sell product function
-async function sellProduct(productId, quantity) {
-  if (quantity <= 0) throw new Error("Quantity must be a positive number");
+  return await StockMovement.findAll({
+    where,
+    include: [Product],
+    transaction: await readDB.transaction(),
+  });
+};
 
-  const transaction = await sequelize.transaction();
-  try {
-    const product = await Product.findByPk(productId, { transaction });
-    if (!product || product.quantity < quantity)
-      throw new Error("Not enough stock");
+export const recordMovement = async ({
+  productId,
+  storeId,
+  type,
+  quantity,
+}) => {
+  const product = await Product.findByPk(productId);
+  const store = await Store.findByPk(storeId);
 
-    product.quantity -= quantity;
-    await product.save({ transaction });
+  if (!product) throw new Error("Product not found");
+  if (!store) throw new Error("Store not found");
 
-    const stockMovement = await StockMovement.create(
-      {
-        type: "SALE",
-        quantity,
-        productId,
-      },
-      { transaction }
-    );
+  if (type === "SALE" || type === "REMOVE") {
+    // In a real implementation you'd want to track inventory per store
+    // This assumes you're just validating that we don't go below 0
+    const stockMovements = await StockMovement.findAll({
+      where: { productId, storeId },
+    });
+    const currentStock = stockMovements.reduce((sum, m) => {
+      if (m.type === "IN") return sum + m.quantity;
+      if (m.type === "SALE" || m.type === "REMOVE") return sum - m.quantity;
+      return sum;
+    }, 0);
 
-    await transaction.commit();
-    return stockMovement;
-  } catch (error) {
-    await transaction.rollback();
-    throw new Error("Error processing sale: " + error.message);
+    if (currentStock < quantity) {
+      throw new Error(`Not enough stock to ${type}`);
+    }
   }
-}
 
-// Remove stock function
-async function removeStock(productId, quantity) {
-  if (quantity <= 0) throw new Error("Quantity must be a positive number");
-
-  const transaction = await sequelize.transaction();
-  try {
-    const product = await Product.findByPk(productId, { transaction });
-    if (!product || product.quantity < quantity)
-      throw new Error("Not enough stock");
-
-    product.quantity -= quantity;
-    await product.save({ transaction });
-
-    const stockMovement = await StockMovement.create(
-      {
-        type: "REMOVE",
-        quantity,
-        productId,
-      },
-      { transaction }
-    );
-
-    await transaction.commit();
-    return stockMovement;
-  } catch (error) {
-    await transaction.rollback();
-    throw new Error("Error removing stock: " + error.message);
-  }
-}
-
-export default { stockIn, sellProduct, removeStock };
+  return await StockMovement.create({ productId, storeId, quantity, type });
+};

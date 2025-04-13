@@ -1,11 +1,11 @@
 import rateLimit from "express-rate-limit";
+import RedisStore from "rate-limit-redis";
+import redis from "../config/redis.js";
 
-// Rate limiter configuration
 export const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: (req, res) => {
-    const retryAfter = Math.ceil(res.get("Retry-After") / 60);
-    return `Too many requests. Please try again in ${retryAfter} minute(s).`;
-  },
+  windowMs: 1 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: new RedisStore({ sendCommand: (...args) => redis.call(...args) }),
 });

@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+import { writeDB } from "../config/database.js";
 
-const User = sequelize.define("User", {
+const User = writeDB.define("User", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true, // Make sure `id` is the primary key
@@ -20,10 +20,5 @@ const User = sequelize.define("User", {
     },
   },
 });
-
-// Hook to hash password before storing it in the database
-// User.beforeCreate(async (user) => {
-//   user.password = await bcrypt.hash(user.password, 10);
-// });
 
 export default User;

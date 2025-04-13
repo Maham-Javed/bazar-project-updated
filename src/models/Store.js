@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+import { writeDB } from "../config/database.js";
 
-const Store = sequelize.define(
+const Store = writeDB.define(
   "Store",
   {
     name: {

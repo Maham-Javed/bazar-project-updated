@@ -1,37 +1,28 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
-import { Product } from "./Product.js";
+import { writeDB } from "../config/database.js";
+import Product from "./Product.js";
+import Store from "./Store.js";
 
-const StockMovement = sequelize.define(
-  "StockMovement",
-  {
-    type: {
-      type: DataTypes.ENUM("IN", "SALE", "REMOVE"),
-      allowNull: false,
-    },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        min: 1, // Quantity must be at least 1
-      },
-    },
-    productId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: Product,
-        key: "id",
-      },
-    },
+const StockMovement = writeDB.define("StockMovement", {
+  type: {
+    type: DataTypes.ENUM("IN", "SALE", "REMOVE"),
+    allowNull: false,
   },
-  {
-    timestamps: true,
-  }
-);
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  date: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+});
 
-// Association
+// ✅ Define associations AFTER model definitions
 Product.hasMany(StockMovement, { foreignKey: "productId" });
 StockMovement.belongsTo(Product, { foreignKey: "productId" });
+
+Store.hasMany(StockMovement, { foreignKey: "storeId" });
+StockMovement.belongsTo(Store, { foreignKey: "storeId" });
 
 export default StockMovement;
