@@ -45,6 +45,17 @@ async function sellProduct(req, res) {
   }
 }
 
+// Handle stock report generation
+async function getReport(req, res) {
+  const { storeId, startDate, endDate } = req.query;
+  try {
+    const report = await getStockReport(storeId, startDate, endDate);
+    success(res, report);
+  } catch (err) {
+    error(res, err.message);
+  }
+}
+
 // Handle removing stock
 async function removeStock(req, res) {
   try {
@@ -64,4 +75,4 @@ async function removeStock(req, res) {
   }
 }
 
-export { stockIn, sellProduct, removeStock };
+export { stockIn, sellProduct, getReport, removeStock };

@@ -61,6 +61,22 @@ async function sellProduct(productId, quantity) {
   }
 }
 
+// Get stock report function
+async function getStockReport(storeId, startDate, endDate) {
+  const where = {};
+  if (storeId) where.storeId = storeId;
+  if (startDate && endDate) {
+    where.date = {
+      [Op.between]: [new Date(startDate), new Date(endDate)],
+    };
+  }
+
+  return await StockMovement.findAll({
+    where,
+    include: [Product],
+  });
+}
+
 // Remove stock function
 async function removeStock(productId, quantity) {
   if (quantity <= 0) throw new Error("Quantity must be a positive number");
@@ -91,4 +107,4 @@ async function removeStock(productId, quantity) {
   }
 }
 
-export default { stockIn, sellProduct, removeStock };
+export default { stockIn, sellProduct, getStockReport, removeStock };
