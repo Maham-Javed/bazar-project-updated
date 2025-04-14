@@ -1,35 +1,49 @@
 import productService from "../services/productService.js";
 
 // Create a new product
-async function createProduct(req, res) {
+export async function createProduct(req, res) {
   try {
-    // Validate incoming data
     const { name, price } = req.body;
-    if (!name || !price) {
-      return res.status(400).json({ error: "Name and price are required" });
+
+    if (!name || typeof price !== "number" || price <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Name and a valid price are required",
+      });
     }
 
-    // Call the service layer to create the product
-    const product = await productService.createProduct(req.body);
-    res.status(201).json(product);
+    const product = await productService.createProduct({ name, price });
+
+    res.status(201).json({
+      success: true,
+      message: "Product created successfully",
+      product,
+    });
   } catch (error) {
     console.error("Error creating product:", error);
-    res.status(400).json({ error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Failed to create product",
+      error: error.message,
+    });
   }
 }
 
 // Get all products
-async function getAllProducts(req, res) {
+export async function getAllProducts(req, res) {
   try {
     const products = await productService.getAllProducts();
-    res.json({
+    res.status(200).json({
+      success: true,
       count: products.length,
-      products: products, // Return the list of products along with the count
+      products,
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch products",
+      error: error.message,
+    });
   }
 }
-
-export { createProduct, getAllProducts };

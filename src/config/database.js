@@ -14,6 +14,12 @@ export const writeDB = new Sequelize(
     dialect: "postgres",
     logging: process.env.NODE_ENV === "development" ? console.log : false,
     retry: { max: 5 },
+    pool: {
+      max: 10,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
   }
 );
 
@@ -28,11 +34,17 @@ export const readDB = new Sequelize(
     dialect: "postgres",
     logging: process.env.NODE_ENV === "development" ? console.log : false,
     retry: { max: 5 },
+    pool: {
+      max: 10,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
   }
 );
 
 // test both DB connections
-const testConnections = async () => {
+export const testConnections = async () => {
   try {
     await writeDB.authenticate();
     console.log("Write DB connected");
@@ -43,6 +55,5 @@ const testConnections = async () => {
     console.error("DB Connection Error:", err);
   }
 };
-testConnections();
 
-export default Sequelize;
+export default { writeDB, readDB };
